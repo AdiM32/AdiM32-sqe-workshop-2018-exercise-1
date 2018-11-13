@@ -24,9 +24,7 @@ function parseFunctionDeclaration(parsedCode) {
 }
 
 function buildModel(parsedCode) {
-    // TODO: delete if
-    if (parsedCode === undefined)
-        return;
+    /* TODO: delete if */ if (parsedCode === undefined) return;
     switch(parsedCode.type){
     case 'Program': parseBody(parsedCode.body); break;
     case 'FunctionDeclaration': parseFunctionDeclaration(parsedCode); break;
@@ -36,10 +34,7 @@ function buildModel(parsedCode) {
     case 'AssignmentExpression':
         parseAssignmentExpression(parsedCode.left, parsedCode.right, parsedCode.loc.start.line); break;
     case 'WhileStatement': parseWhileStatement(parsedCode.test, parsedCode.body, parsedCode.loc.start.line); break;
-    default:
-        console.log(parsedCode.type);
-        model.push(Row('1','2','3','4','5'));
-        break;
+    default: /*console.log(parsedCode.type);*/ model.push(Row('1','2','3','4','5'));break;
     }
 }
 
