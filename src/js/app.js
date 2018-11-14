@@ -9,7 +9,8 @@ $(document).ready(function () {
         let parsedCode = parseCode(codeToParse);
         buildModel(parsedCode);
         let table = buildTable(model);
-        createTable([['row 1, cell 1', 'row 1, cell 2'], ['row 2, cell 1', 'row 2, cell 2']]);
+        model.pop(); // remove null in the end of the model
+        createTable();
         model = [];
         $('#parsedCode').val(JSON.stringify(table, null, 2));
     });
@@ -25,7 +26,6 @@ function parseFunctionDeclaration(parsedCode) {
 }
 
 function buildModel(parsedCode) {
-    /* TODO: delete if  if (parsedCode === undefined) return;*/
     switch(parsedCode.type){
     case 'Program': parseBody(parsedCode.body); break;
     case 'FunctionDeclaration': parseFunctionDeclaration(parsedCode); break;
@@ -39,7 +39,6 @@ function buildModel(parsedCode) {
     case 'ElseIfStatement':
         parsedIfStatement(parsedCode.loc.start.line, parsedCode.type, parsedCode.test, parsedCode.consequent, parsedCode.alternate); break;
     case 'ReturnStatement': parsedReturnStatement(parsedCode.loc.start.line, parsedCode.argument); break;
-    default: console.log(parsedCode.type); model.push(Row('1','2','3','4','5'));break;
     }
 }
 
@@ -110,22 +109,61 @@ function buildTable(model) {
     return table;
 }
 
-function createTable(tableData) {
-    var table = document.createElement('table');
-    var tableBody = document.createElement('tbody');
+function createTable() {
+    let table = document.createElement('table');
+    createTableHead(table);
+    createTableBody(table);
 
-    tableData.forEach(function(rowData) {
-        var row = document.createElement('tr');
-
-        rowData.forEach(function(cellData) {
-            var cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(cellData));
-            row.appendChild(cell);
-        });
-
-        tableBody.appendChild(row);
-    });
-
-    table.appendChild(tableBody);
+    let style = document.createElement('style');
+    style.innerHTML = 'body {\n' +
+        '    font: normal medium/1.4 sans-serif;\n' +
+        '}\n' +
+        'table {\n' +
+        '    border-collapse: collapse;\n' +
+        '    width: 50%;\n' +
+        '}\n' +
+        'th, td {\n' +
+        '    padding: 0.25rem;\n' +
+        '    text-align: left;\n' +
+        '    border: 1px solid #ccc;\n' +
+        '}\n' +
+        'tbody tr:nth-child(odd) {\n' +
+        '    background: #eee;\n' +
+        '}';
+    table.appendChild(style);
     document.body.appendChild(table);
+}
+
+function createTableHead(table) {
+    let tableHead = document.createElement('thead');
+    let tr = document.createElement('tr');
+    let headlines = ['Line', 'Type', 'Name', 'Condition', 'Value'];
+    headlines.forEach((element) => {
+        let th = document.createElement('th');
+        th.innerHTML = element;
+        tr.appendChild(th);});
+    tableHead.appendChild(tr);
+    table.appendChild(tableHead);
+}
+
+function createTableBody(table) {
+    let tableBody = document.createElement('tbody');
+    model.forEach((model_row) => cerateRow(model_row, tableBody));
+    table.appendChild(tableBody);
+}
+
+function cerateRow(model_row, tableBody) {
+    let row = document.createElement('tr');
+    createCell(model_row.Line, row);
+    createCell(model_row.Type, row);
+    createCell(model_row.Name, row);
+    createCell(model_row.Condition, row);
+    createCell(model_row.Value, row);
+    tableBody.appendChild(row);
+}
+
+function createCell(cell_date, row) {
+    let cell = document.createElement('td');
+    cell.appendChild(document.createTextNode(cell_date));
+    row.appendChild(cell);
 }
