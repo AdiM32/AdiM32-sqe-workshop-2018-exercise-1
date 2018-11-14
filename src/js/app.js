@@ -38,8 +38,23 @@ function buildModel(parsedCode) {
     }
 }
 
+function parseBinaryExpression(binaryExpression) {
+    return pareOneSide(binaryExpression.left) + ' ' +
+           binaryExpression.operator + ' ' +
+           pareOneSide(binaryExpression.right);
+}
+
+function pareOneSide(side) {
+    switch (side.type) {
+    case 'Identifier': return side.name;
+    case 'Literal': return side.raw;
+    case 'BinaryExpression': return '(' + parseBinaryExpression(side) + ')';
+    default: return '';
+    }
+}
+
 function parseWhileStatement(test, body, line) {
-    model.push(Row(line, 'while statement', '', test.left.name + test.operator + test.right.name, ''));
+    model.push(Row(line, 'while statement', '', parseBinaryExpression(test), ''));
     buildModel(body);
 }
 
@@ -51,8 +66,7 @@ function find_init(init) {
     if (init.type === 'Literal')
         return init.raw;
     if (init.type === 'BinaryExpression')
-        // TODO: parse BinaryExpression
-        return init.left.name + init.operator + init.right.raw;
+        return parseBinaryExpression(init);
 }
 
 function parseVariableDeclaration(declarations) {
