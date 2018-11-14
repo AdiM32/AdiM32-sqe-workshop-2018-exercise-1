@@ -9,6 +9,7 @@ $(document).ready(function () {
         let parsedCode = parseCode(codeToParse);
         buildModel(parsedCode);
         let table = buildTable(model);
+        createTable([['row 1, cell 1', 'row 1, cell 2'], ['row 2, cell 1', 'row 2, cell 2']]);
         model = [];
         $('#parsedCode').val(JSON.stringify(table, null, 2));
     });
@@ -24,7 +25,7 @@ function parseFunctionDeclaration(parsedCode) {
 }
 
 function buildModel(parsedCode) {
-    /* TODO: delete if */ if (parsedCode === undefined) return;
+    /* TODO: delete if  if (parsedCode === undefined) return;*/
     switch(parsedCode.type){
     case 'Program': parseBody(parsedCode.body); break;
     case 'FunctionDeclaration': parseFunctionDeclaration(parsedCode); break;
@@ -34,8 +35,26 @@ function buildModel(parsedCode) {
     case 'AssignmentExpression':
         parseAssignmentExpression(parsedCode.left, parsedCode.right, parsedCode.loc.start.line); break;
     case 'WhileStatement': parseWhileStatement(parsedCode.test, parsedCode.body, parsedCode.loc.start.line); break;
-    default: /*console.log(parsedCode.type);*/ model.push(Row('1','2','3','4','5'));break;
+    case 'IfStatement':
+    case 'ElseIfStatement':
+        parsedIfStatement(parsedCode.loc.start.line, parsedCode.type, parsedCode.test, parsedCode.consequent, parsedCode.alternate); break;
+    case 'ReturnStatement': parsedReturnStatement(parsedCode.loc.start.line, parsedCode.argument); break;
+    default: console.log(parsedCode.type); model.push(Row('1','2','3','4','5'));break;
     }
+}
+
+function parsedReturnStatement(line, argument) {
+    model.push(Row(line, 'return statement', '', '', pareOneSide(argument)));
+}
+
+function parsedIfStatement(line, type, test, consequent, alternate) {
+    model.push(Row(line, type[0] === 'E'? 'else if statement': 'if statement', '', parseBinaryExpression(test), ''));
+    buildModel(consequent);
+    if (alternate !== null)
+        if(alternate.type === 'IfStatement') {
+            alternate.type = 'ElseIfStatement';
+            buildModel(alternate);
+        }
 }
 
 function parseBinaryExpression(binaryExpression) {
@@ -49,7 +68,8 @@ function pareOneSide(side) {
     case 'Identifier': return side.name;
     case 'Literal': return side.raw;
     case 'BinaryExpression': return '(' + parseBinaryExpression(side) + ')';
-    default: return '';
+    case 'MemberExpression': return side.object.name + '[' + pareOneSide(side.property) + ']';
+    case 'UnaryExpression': return side.operator + pareOneSide(side.argument);
     }
 }
 
@@ -72,7 +92,7 @@ function find_init(init) {
 function parseVariableDeclaration(declarations) {
     declarations.forEach((element) => {
         model.push(Row(element.loc.start.line, 'variable declaration', element.id.name, '' ,
-            element.init === null? 'null (or nothing)': element.init));
+            element.init === null? 'null (or nothing)': pareOneSide(element.init)));
     });
 }
 
@@ -88,4 +108,24 @@ function buildTable(model) {
     // TODO: implement
     let table = model;
     return table;
+}
+
+function createTable(tableData) {
+    var table = document.createElement('table');
+    var tableBody = document.createElement('tbody');
+
+    tableData.forEach(function(rowData) {
+        var row = document.createElement('tr');
+
+        rowData.forEach(function(cellData) {
+            var cell = document.createElement('td');
+            cell.appendChild(document.createTextNode(cellData));
+            row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableBody);
+    document.body.appendChild(table);
 }
