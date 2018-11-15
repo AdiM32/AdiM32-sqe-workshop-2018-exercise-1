@@ -4,7 +4,22 @@ import {parseCode} from './code-analyzer';
 let model = [];
 const buildStruct = (...keys) => ((...values) => keys.reduce((obj, key, i) => {obj[key] = values[i]; return obj;} , {}));
 const Row = buildStruct('Line', 'Type', 'Name', 'Condition', 'Value');
+const type_func = {'Program': (pc) => parseBody(pc.body),
+    'FunctionDeclaration': (pc) => parseFunctionDeclaration(pc.loc.start.line, pc.params, pc.id.name, pc.body),
+    'BlockStatement': (pc) => parseBody(pc.body),
+    'VariableDeclaration': (pc) => parseVariableDeclaration(pc.declarations),
+    'ExpressionStatement': (pc) => buildModel(pc.expression),
+    'AssignmentExpression': (pc) => parseAssignmentExpression(pc.left, pc.right, pc.loc.start.line),
+    'WhileStatement': (pc) => parseWhileStatement(pc.test, pc.body, pc.loc.start.line),
+    'IfStatement': (pc) => parsedIfStatement(pc.loc.start.line, pc.type, pc.test, pc.consequent, pc.alternate),
+    'ElseIfStatement': (pc) => parsedIfStatement(pc.loc.start.line, pc.type, pc.test, pc.consequent, pc.alternate),
+    'ReturnStatement': (pc) => parsedReturnStatement(pc.loc.start.line, pc.argument)};
 
+const sideType_func = {'Identifier': (s) => {return s.name;},
+    'Literal': (s) => {return s.raw;},
+    'BinaryExpression': (s) => {return'(' + parseBinaryExpression(s) + ')';},
+    'MemberExpression': (s) => {return s.object.name + '[' + pareOneSide(s.property) + ']';},
+    'UnaryExpression': (s) =>  {return s.operator + pareOneSide(s.argument);}};
 
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
@@ -14,31 +29,18 @@ $(document).ready(function () {
         createTable();
         $('#parsedCode').val(JSON.stringify(model, null, 2));
         model = [];
+        clearTbale();
     });
 });
 
-
-function parseFunctionDeclaration(parsedCode) {
-    model.push(Row(parsedCode.loc.start.line, 'function declaration', parsedCode.id.name, '', ''));
-    parseParam(parsedCode.params);
-    model.push(buildModel(parsedCode.body));
+function buildModel(parsedCode) {
+    type_func[parsedCode.type](parsedCode);
 }
 
-function buildModel(parsedCode) {
-    switch(parsedCode.type){
-    case 'Program': parseBody(parsedCode.body); break;
-    case 'FunctionDeclaration': parseFunctionDeclaration(parsedCode); break;
-    case 'BlockStatement': parseBody(parsedCode.body); break;
-    case 'VariableDeclaration': parseVariableDeclaration(parsedCode.declarations); break;
-    case 'ExpressionStatement': buildModel(parsedCode.expression); break;
-    case 'AssignmentExpression':
-        parseAssignmentExpression(parsedCode.left, parsedCode.right, parsedCode.loc.start.line); break;
-    case 'WhileStatement': parseWhileStatement(parsedCode.test, parsedCode.body, parsedCode.loc.start.line); break;
-    case 'IfStatement':
-    case 'ElseIfStatement':
-        parsedIfStatement(parsedCode.loc.start.line, parsedCode.type, parsedCode.test, parsedCode.consequent, parsedCode.alternate); break;
-    case 'ReturnStatement': parsedReturnStatement(parsedCode.loc.start.line, parsedCode.argument); break;
-    }
+function parseFunctionDeclaration(line, params, name, body) {
+    model.push(Row(line, 'function declaration', name, '', ''));
+    parseParam(params);
+    model.push(buildModel(body));
 }
 
 function parsedReturnStatement(line, argument) {
@@ -62,13 +64,7 @@ function parseBinaryExpression(binaryExpression) {
 }
 
 function pareOneSide(side) {
-    switch (side.type) {
-    case 'Identifier': return side.name;
-    case 'Literal': return side.raw;
-    case 'BinaryExpression': return '(' + parseBinaryExpression(side) + ')';
-    case 'MemberExpression': return side.object.name + '[' + pareOneSide(side.property) + ']';
-    case 'UnaryExpression': return side.operator + pareOneSide(side.argument);
-    }
+    return sideType_func[side.type](side);
 }
 
 function parseWhileStatement(test, body, line) {
@@ -79,6 +75,7 @@ function parseWhileStatement(test, body, line) {
 function parseAssignmentExpression(left, right, line) {
     model.push(Row(line, 'assignment expression', left.name, '', find_init(right)));
 }
+
 
 function find_init(init) {
     if (init.type === 'Literal')
@@ -141,4 +138,10 @@ function createCell(cell_date, row) {
     let cell = document.createElement('td');
     cell.appendChild(document.createTextNode(cell_date));
     row.appendChild(cell);
+}
+
+function clearTbale() {
+    // TODO: fix this is not working
+    let table = document.getElementById('my_table');
+    table.clean();
 }
