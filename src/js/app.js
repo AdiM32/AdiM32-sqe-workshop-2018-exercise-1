@@ -2,22 +2,21 @@ import $ from 'jquery';
 import {parseCode} from './code-analyzer';
 
 let model = [];
+const buildStruct = (...keys) => ((...values) => keys.reduce((obj, key, i) => {obj[key] = values[i]; return obj;} , {}));
+const Row = buildStruct('Line', 'Type', 'Name', 'Condition', 'Value');
+
 
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
         let codeToParse = $('#codePlaceholder').val();
         let parsedCode = parseCode(codeToParse);
         buildModel(parsedCode);
-        let table = buildTable(model);
-        model.pop(); // remove null in the end of the model
         createTable();
+        $('#parsedCode').val(JSON.stringify(model, null, 2));
         model = [];
-        $('#parsedCode').val(JSON.stringify(table, null, 2));
     });
 });
 
-const buildStruct = (...keys) => ((...values) => keys.reduce((obj, key, i) => {obj[key] = values[i]; return obj;} , {}));
-const Row = buildStruct('Line', 'Type', 'Name', 'Condition', 'Value');
 
 function parseFunctionDeclaration(parsedCode) {
     model.push(Row(parsedCode.loc.start.line, 'function declaration', parsedCode.id.name, '', ''));
@@ -103,34 +102,10 @@ function parseParam(params) {
     params.forEach((param) => model.push(Row(param.loc.start.line, 'variable declaration', param.name, '', '')));
 }
 
-function buildTable(model) {
-    // TODO: implement
-    let table = model;
-    return table;
-}
-
 function createTable() {
-    let table = document.createElement('table');
+    let table = document.getElementById('my_table');
     createTableHead(table);
     createTableBody(table);
-
-    let style = document.createElement('style');
-    style.innerHTML = 'body {\n' +
-        '    font: normal medium/1.4 sans-serif;\n' +
-        '}\n' +
-        'table {\n' +
-        '    border-collapse: collapse;\n' +
-        '    width: 50%;\n' +
-        '}\n' +
-        'th, td {\n' +
-        '    padding: 0.25rem;\n' +
-        '    text-align: left;\n' +
-        '    border: 1px solid #ccc;\n' +
-        '}\n' +
-        'tbody tr:nth-child(odd) {\n' +
-        '    background: #eee;\n' +
-        '}';
-    table.appendChild(style);
     document.body.appendChild(table);
 }
 
