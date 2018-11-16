@@ -19,20 +19,6 @@
                 height: 95%;
             }
         </style>
-        <style name="my_table">
-            table.my_table {
-                border-collapse: collapse;
-                width: 50%;
-            }
-            table.my_table th, table.my_table td {
-                padding: 0.25rem;
-                text-align: left;
-                border: 1px solid #ccc;
-            }
-            tbody tr:nth-child(odd) {
-                background: #eee;
-            }
-        </style>
     </head>
     <body>
         <table class="base" id="base">
@@ -69,8 +55,15 @@
                 <td>
                 </td>
             </tr>
+            <tr>
+                <td colspan="2">
+                    <div>
+                        <table id="view_table">
+                        </table>
+                    </div>
+                </td>
+            </tr>
         </table>
         <script src="dist/bundle.js"></script>
-        <table class="my_table" id="my_table"></table>
     </body>
 </html>

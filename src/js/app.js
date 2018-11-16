@@ -100,7 +100,7 @@ function parseParam(params) {
 }
 
 function createTable() {
-    let table = document.getElementById('my_table');
+    let table = document.getElementById('view_table');
     createTableHead(table);
     createTableBody(table);
     document.body.appendChild(table);
@@ -142,6 +142,6 @@ function createCell(cell_date, row) {
 
 function clearTbale() {
     // TODO: fix this is not working
-    let table = document.getElementById('my_table');
+    let table = document.getElementById('view_table');
     table.clean();
 }
