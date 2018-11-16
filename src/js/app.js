@@ -25,11 +25,11 @@ $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
         let codeToParse = $('#codePlaceholder').val();
         let parsedCode = parseCode(codeToParse);
-        buildModel(parsedCode);
-        createTable();
-        $('#parsedCode').val(JSON.stringify(model, null, 2));
-        model = [];
+        clearModel();
         clearTbale();
+        buildModel(parsedCode);
+        buildTable();
+        $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
     });
 });
 
@@ -40,7 +40,7 @@ function buildModel(parsedCode) {
 function parseFunctionDeclaration(line, params, name, body) {
     model.push(Row(line, 'function declaration', name, '', ''));
     parseParam(params);
-    model.push(buildModel(body));
+    buildModel(body);
 }
 
 function parsedReturnStatement(line, argument) {
@@ -50,11 +50,12 @@ function parsedReturnStatement(line, argument) {
 function parsedIfStatement(line, type, test, consequent, alternate) {
     model.push(Row(line, type[0] === 'E'? 'else if statement': 'if statement', '', parseBinaryExpression(test), ''));
     buildModel(consequent);
-    if (alternate !== null)
-        if(alternate.type === 'IfStatement') {
+    if (alternate !== null) {
+        if (alternate.type === 'IfStatement') {
             alternate.type = 'ElseIfStatement';
-            buildModel(alternate);
         }
+        buildModel(alternate);
+    }
 }
 
 function parseBinaryExpression(binaryExpression) {
@@ -99,7 +100,7 @@ function parseParam(params) {
     params.forEach((param) => model.push(Row(param.loc.start.line, 'variable declaration', param.name, '', '')));
 }
 
-function createTable() {
+function buildTable() {
     let table = document.getElementById('view_table');
     createTableHead(table);
     createTableBody(table);
@@ -143,5 +144,10 @@ function createCell(cell_date, row) {
 function clearTbale() {
     // TODO: fix this is not working
     let table = document.getElementById('view_table');
-    table.clean();
+    // table.clean();
+    table.innerHTML = '';
+}
+
+function clearModel() {
+    model = [];
 }
