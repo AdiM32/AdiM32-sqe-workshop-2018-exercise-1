@@ -11,16 +11,20 @@ const type_func = {'Program': (pc) => parseBody(pc.body),
     'WhileStatement': (pc) => parseWhileStatement(pc.test, pc.body, pc.loc.start.line),
     'IfStatement': (pc) => parsedIfStatement(pc.loc.start.line, pc.type, pc.test, pc.consequent, pc.alternate),
     'ElseIfStatement': (pc) => parsedIfStatement(pc.loc.start.line, pc.type, pc.test, pc.consequent, pc.alternate),
-    'ReturnStatement': (pc) => parsedReturnStatement(pc.loc.start.line, pc.argument)};
+    'ReturnStatement': (pc) => parsedReturnStatement(pc.loc.start.line, pc.argument),
+    'ForStatement': (pc) => parseForStatement(pc.loc.start.line, pc.body, pc.init, pc.test, pc.update)};
 
 const sideType_func = {'Identifier': (s) => {return s.name;},
     'Literal': (s) => {return s.raw;},
     'BinaryExpression': (s) => {return'(' + parseBinaryExpression(s) + ')';},
     'MemberExpression': (s) => {return s.object.name + '[' + pareOneSide(s.property) + ']';},
-    'UnaryExpression': (s) =>  {return s.operator + pareOneSide(s.argument);}};
+    'UnaryExpression': (s) =>  {return s.operator + pareOneSide(s.argument);},
+    'UpdateExpression': (s) => {return s.argument.name + s.operator;}};
 
 function buildModel(parsedCode) {
-    type_func[parsedCode.type](parsedCode);
+    if (parsedCode.type in type_func){
+        type_func[parsedCode.type](parsedCode);
+    }
 }
 
 function parseBody(body) {
@@ -85,6 +89,12 @@ function find_init(init) {
         return parseBinaryExpression(init);
 }
 
+function parseForStatement(line, body, init, test, update) {
+    let Condition = init.declarations[0].id.name + ' = ' + pareOneSide(init.declarations[0].init) + '; ' +
+        parseBinaryExpression(test) + '; ' + pareOneSide(update);
+    model.push(Row(line, 'for statement', '', Condition, ''));
+    buildModel(body);
+}
 function clearModel() {
     model = [];
 }

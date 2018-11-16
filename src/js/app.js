@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import {parseCode} from './code-analyzer';
-import {clearModel, buildModel} from './Model';
+import {clearModel, buildModel, model} from './Model';
 import {clearTable, buildTable} from './View';
 
 $(document).ready(function () {
@@ -11,6 +11,6 @@ $(document).ready(function () {
         clearTable();
         buildModel(parsedCode);
         buildTable();
-        $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
+        $('#parsedCode').val(JSON.stringify(model, null, 2));
     });
 });
