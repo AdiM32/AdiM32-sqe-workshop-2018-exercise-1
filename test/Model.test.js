@@ -82,6 +82,24 @@ describe('The module', () => {
         clearModel();
     });
 
+    it('is parsing assignment expression correctly', () => {
+        buildModel(parseCode('x = 5+4;'));
+        let json = [
+            {
+                'Line': 1,
+                'Type': 'assignment expression',
+                'Name': 'x',
+                'Condition': '',
+                'Value': '5 + 4'
+            }
+        ];
+        assert.equal(
+            JSON.stringify(model),
+            JSON.stringify(json)
+        );
+        clearModel();
+    });
+
     it('is parsing if statement with else correctly', () => {
         buildModel(parseCode('if (i == 0) {} else {};'));
         let json = [

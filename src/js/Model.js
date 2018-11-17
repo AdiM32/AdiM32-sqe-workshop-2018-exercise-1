@@ -16,7 +16,7 @@ const type_func = {'Program': (pc) => parseBody(pc.body),
 
 const sideType_func = {'Identifier': (s) => {return s.name;},
     'Literal': (s) => {return s.raw;},
-    'BinaryExpression': (s) => {return'(' + parseBinaryExpression(s) + ')';},
+    'BinaryExpression': (s) => {return '(' + parseBinaryExpression(s) + ')';},
     'MemberExpression': (s) => {return s.object.name + '[' + pareOneSide(s.property) + ']';},
     'UnaryExpression': (s) =>  {return s.operator + pareOneSide(s.argument);},
     'UpdateExpression': (s) => {return s.argument.name + s.operator;}};
@@ -85,8 +85,7 @@ function parsedReturnStatement(line, argument) {
 function find_init(init) {
     if (init.type === 'Literal')
         return init.raw;
-    if (init.type === 'BinaryExpression')
-        return parseBinaryExpression(init);
+    return parseBinaryExpression(init);
 }
 
 function parseForStatement(line, body, init, test, update) {
