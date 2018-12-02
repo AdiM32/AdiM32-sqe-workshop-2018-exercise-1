@@ -83,6 +83,7 @@ function parsedReturnStatement(line, argument) {
 }
 
 function parseForStatement(line, body, init, test, update) {
+    buildModel(init);
     let Condition = 'let ' + init.declarations[0].id.name + ' = ' + pareOneSide(init.declarations[0].init) + '; ' +
         parseBinaryExpression(test) + '; ' + pareOneSide(update);
     model.push(Row(line, 'for statement', '', Condition, ''));
