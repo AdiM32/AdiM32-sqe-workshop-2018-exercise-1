@@ -64,7 +64,7 @@ function parseWhileStatement(test, body, line) {
 }
 
 function parseAssignmentExpression(left, right, line) {
-    model.push(Row(line, 'assignment expression', left.name, '', find_init(right)));
+    model.push(Row(line, 'assignment expression', pareOneSide(left), '', pareOneSide(right)));
 }
 
 function parsedIfStatement(line, type, test, consequent, alternate) {
@@ -82,18 +82,13 @@ function parsedReturnStatement(line, argument) {
     model.push(Row(line, 'return statement', '', '', pareOneSide(argument)));
 }
 
-function find_init(init) {
-    if (init.type === 'Literal')
-        return init.raw;
-    return parseBinaryExpression(init);
-}
-
 function parseForStatement(line, body, init, test, update) {
-    let Condition = init.declarations[0].id.name + ' = ' + pareOneSide(init.declarations[0].init) + '; ' +
+    let Condition = 'let ' + init.declarations[0].id.name + ' = ' + pareOneSide(init.declarations[0].init) + '; ' +
         parseBinaryExpression(test) + '; ' + pareOneSide(update);
     model.push(Row(line, 'for statement', '', Condition, ''));
     buildModel(body);
 }
+
 function clearModel() {
     model = [];
 }

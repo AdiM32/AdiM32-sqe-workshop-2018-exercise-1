@@ -10,13 +10,13 @@ function test_Struct(test, result){
 describe('loop statement', () =>{
     it('should parse for statement correctly', () => {
         test_Struct('for (let i=0; i<10; i++) {}',
-            [{'Line': 1, 'Type': 'for statement', 'Name': '', 'Condition': 'i = 0; i < 10; i++', 'Value': ''}]);
+            [{'Line': 1, 'Type': 'for statement', 'Name': '', 'Condition': 'let i = 0; i < 10; i++', 'Value': ''}]);
     });
 
     it('should parse for statement with body correctly', () => {
         test_Struct('for (let i=0; i<10; i++) {\n sum = sum  + i\n}',
-            [{'Line': 1, 'Type': 'for statement', 'Name': '', 'Condition': 'i = 0; i < 10; i++', 'Value': ''},
-                {'Line': 2, 'Type': 'assignment expression', 'Name': 'sum', 'Condition': '', 'Value': 'sum + i'}]);
+            [{'Line': 1, 'Type': 'for statement', 'Name': '', 'Condition': 'let i = 0; i < 10; i++', 'Value': ''},
+                {'Line': 2, 'Type': 'assignment expression', 'Name': 'sum', 'Condition': '', 'Value': '(sum + i)'}]);
     });
 
     it('should parse while statement correctly', () => {
@@ -50,7 +50,7 @@ describe('assignment expression', () =>{
 
     it('should parse assignment expression correctly', () => {
         test_Struct('x = 5+4;',
-            [{'Line': 1, 'Type': 'assignment expression', 'Name': 'x', 'Condition': '', 'Value': '5 + 4'}]);
+            [{'Line': 1, 'Type': 'assignment expression', 'Name': 'x', 'Condition': '', 'Value': '(5 + 4)'}]);
     });
 });
 
@@ -92,13 +92,13 @@ describe('binarySearch function ', () => {
             {'Line': 2, 'Type': 'variable declaration', 'Name': 'low', 'Condition': '', 'Value': 'null (or nothing)'}, {'Line': 2, 'Type': 'variable declaration', 'Name': 'high', 'Condition': '', 'Value': 'null (or nothing)'},
             {'Line': 2, 'Type': 'variable declaration', 'Name': 'mid', 'Condition': '', 'Value': 'null (or nothing)'},
             {'Line': 3, 'Type': 'assignment expression', 'Name': 'low', 'Condition': '', 'Value': '0'},
-            {'Line': 4, 'Type': 'assignment expression', 'Name': 'high', 'Condition': '', 'Value': 'n - 1'},
+            {'Line': 4, 'Type': 'assignment expression', 'Name': 'high', 'Condition': '', 'Value': '(n - 1)'},
             {'Line': 5, 'Type': 'while statement', 'Name': '', 'Condition': 'low <= high', 'Value': ''},
-            {'Line': 6, 'Type': 'assignment expression', 'Name': 'mid', 'Condition': '', 'Value': '(low + high) / 2'},
+            {'Line': 6, 'Type': 'assignment expression', 'Name': 'mid', 'Condition': '', 'Value': '((low + high) / 2)'},
             {'Line': 7, 'Type': 'if statement', 'Name': '', 'Condition': 'X < V[mid]', 'Value': ''},
-            {'Line': 8, 'Type': 'assignment expression', 'Name': 'high', 'Condition': '', 'Value': 'mid - 1'},
+            {'Line': 8, 'Type': 'assignment expression', 'Name': 'high', 'Condition': '', 'Value': '(mid - 1)'},
             {'Line': 9, 'Type': 'else if statement', 'Name': '', 'Condition': 'X > V[mid]', 'Value': ''},
-            {'Line': 10, 'Type': 'assignment expression', 'Name': 'low', 'Condition': '', 'Value': 'mid + 1'},
+            {'Line': 10, 'Type': 'assignment expression', 'Name': 'low', 'Condition': '', 'Value': '(mid + 1)'},
             {'Line': 12, 'Type': 'return statement', 'Name': '', 'Condition': '', 'Value': 'mid'},
             {'Line': 14, 'Type': 'return statement', 'Name': '', 'Condition': '', 'Value': '-1'}]);});
 });
